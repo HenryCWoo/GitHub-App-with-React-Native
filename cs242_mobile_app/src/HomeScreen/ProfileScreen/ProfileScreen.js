@@ -83,14 +83,14 @@ export default class ProfileScreen extends Component {
       );
     }
     // Place holder in case of failed API call
-    // return (
-    //   <Icon
-    //     type="entypo"
-    //     name="github-with-circle"
-    //     size={avatar_size}
-    //     color="darkgrey"
-    //   />
-    // );
+    return (
+      <Icon
+        type="entypo"
+        name="github-with-circle"
+        size={avatar_size}
+        color="darkgrey"
+      />
+    );
   }
 
   renderProfileName() {
