@@ -318,8 +318,7 @@ export default class ProfileScreen extends Component {
                   <View
                     style={{
                       flex: 1,
-                      justifyContent: "center",
-                      alignItems: "center"
+                      justifyContent: "center"
                     }}>
                     {this.renderGenericBadge("bio", "feather", "gift")}
                     {this.renderGenericBadge(
@@ -329,6 +328,7 @@ export default class ProfileScreen extends Component {
                     )}
                     {this.renderGenericBadge("email", "feather", "help-circle")}
                     {this.renderJoinDate("feather", "sunset")}
+                    <View style={{ margin: 36 }} />
                   </View>
                 </Swiper>
               </View>
