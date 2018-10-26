@@ -6,7 +6,7 @@ import {
   Dimensions,
   Text
 } from "react-native";
-import { Header, Avatar, Icon } from "react-native-elements";
+import { Header, Avatar } from "react-native-elements";
 import { Tab, Tabs, TabHeading, ScrollableTab } from "native-base";
 import { StyleSheet } from "react-native";
 import Swiper from "react-native-swiper";
@@ -83,14 +83,14 @@ export default class ProfileScreen extends Component {
       );
     }
     // Place holder in case of failed API call
-    return (
-      <Icon
-        type="entypo"
-        name="github-with-circle"
-        size={avatar_size}
-        color="darkgrey"
-      />
-    );
+    // return (
+    //   <Icon
+    //     type="entypo"
+    //     name="github-with-circle"
+    //     size={avatar_size}
+    //     color="darkgrey"
+    //   />
+    // );
   }
 
   renderProfileName() {
@@ -119,7 +119,7 @@ export default class ProfileScreen extends Component {
                 justifyContent: "center",
                 alignContent: "center"
               }}>
-              <Icon size={16} type="feather" name="feather" color="lightgrey" />
+              {/* <Icon size={16} type="feather" name="feather" color="lightgrey" /> */}
               <MyText
                 style={{
                   textAlign: "center",
@@ -148,11 +148,11 @@ export default class ProfileScreen extends Component {
               justifyContent: "center",
               alignContent: "center"
             }}>
-            {iconType != null && iconName != null ? (
+            {/* {iconType != null && iconName != null ? (
               <Icon type={iconType} name={iconName} color="white" size={16} />
             ) : (
               {}
-            )}
+            )} */}
             <MyText
               style={{
                 borderRadius: 5
@@ -177,11 +177,11 @@ export default class ProfileScreen extends Component {
             justifyContent: "center",
             alignContent: "center"
           }}>
-          {iconType != null && iconName != null ? (
+          {/* {iconType != null && iconName != null ? (
             <Icon type={iconType} name={iconName} color="white" size={16} />
           ) : (
             {}
-          )}
+          )} */}
           <MyText
             style={{
               borderRadius: 5
@@ -315,15 +315,20 @@ export default class ProfileScreen extends Component {
                     height: dimensions.height * 0.3
                   }}>
                   {this.renderProfileName(16, 24)}
-                  <View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center"
+                    }}>
                     {this.renderGenericBadge("bio", "feather", "gift")}
-                    {this.renderJoinDate("feather", "sunset")}
                     {this.renderGenericBadge(
                       "html_url",
                       "feather",
                       "file-minus"
                     )}
                     {this.renderGenericBadge("email", "feather", "help-circle")}
+                    {this.renderJoinDate("feather", "sunset")}
                   </View>
                 </Swiper>
               </View>

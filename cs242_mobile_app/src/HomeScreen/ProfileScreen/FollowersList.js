@@ -72,7 +72,7 @@ export default class FollowersList extends Component {
     return (
       <View
         style={{ justifyContent: "center", alignContent: "center", margin: 8 }}>
-        <Icon size={140} type="font-awesome" name="github" color="grey" />
+        {/* <Icon size={140} type="font-awesome" name="github" color="grey" /> */}
       </View>
     );
   }

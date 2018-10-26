@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Linking } from "react-native";
 import { List, ListItem, Text, View } from "native-base";
-import { Icon } from "react-native-elements";
+// import { Icon } from "react-native-elements";
 
 export default class PublicRepoList extends Component {
   constructor(props) {
@@ -36,20 +36,20 @@ export default class PublicRepoList extends Component {
     this.getGithubRepos();
   }
 
-  getLanguageIcon(repoLanguage) {
-    let createIcon = iconNameColorPair => (
-      <Icon
-        type="material-community-icons"
-        name={iconNameColorPair[0]}
-        color={iconNameColorPair[1]}
-      />
-    );
-    var colorDict = { Python: ["python", "green"] };
-    let nameValuePair = colorDict[repoLanguage];
-    if (nameValuePair) {
-      return createIcon(colorDict[repoLanguage]);
-    }
-  }
+  // getLanguageIcon(repoLanguage) {
+  //   let createIcon = iconNameColorPair => (
+  //     <Icon
+  //       type="material-community-icons"
+  //       name={iconNameColorPair[0]}
+  //       color={iconNameColorPair[1]}
+  //     />
+  //   );
+  //   var colorDict = { Python: ["python", "green"] };
+  //   let nameValuePair = colorDict[repoLanguage];
+  //   if (nameValuePair) {
+  //     return createIcon(colorDict[repoLanguage]);
+  //   }
+  // }
 
   populateListItem(repo) {
     return (
@@ -93,7 +93,7 @@ export default class PublicRepoList extends Component {
     return (
       <View
         style={{ justifyContent: "center", alignContent: "center", margin: 8 }}>
-        <Icon size={140} type="font-awesome" name="github" color="grey" />
+        {/* <Icon size={140} type="font-awesome" name="github" color="grey" /> */}
       </View>
     );
   }
