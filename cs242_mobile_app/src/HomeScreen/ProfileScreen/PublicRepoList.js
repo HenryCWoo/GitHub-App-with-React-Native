@@ -21,10 +21,18 @@ export default class PublicRepoList extends Component {
       }
     })
       .then(response => response.json())
-      .then(responseJson => this.setState({ githubRepos: responseJson }));
+      .then(responseJson =>
+        this.setState({
+          githubRepos: responseJson
+        })
+      );
   }
 
   componentDidMount() {
+    this.getGithubRepos();
+  }
+
+  componentDidUpdate() {
     this.getGithubRepos();
   }
 
@@ -63,7 +71,7 @@ export default class PublicRepoList extends Component {
   }
 
   createList() {
-    return this.state.githubRepos.map((repo, index) => (
+    return this.state.githubRepos.map(repo => (
       <ListItem
         style={{ height: 80 }}
         key={repo["id"]}
@@ -82,6 +90,11 @@ export default class PublicRepoList extends Component {
     if (this.state.githubRepos) {
       return <List key="PublicReposList">{this.createList()}</List>;
     }
-    return <Text>No public repos.</Text>;
+    return (
+      <View
+        style={{ justifyContent: "center", alignContent: "center", margin: 8 }}>
+        <Icon size={140} type="font-awesome" name="github" color="grey" />
+      </View>
+    );
   }
 }

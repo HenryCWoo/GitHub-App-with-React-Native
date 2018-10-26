@@ -3,6 +3,7 @@ import { Text, View, StatusBar } from "react-native";
 // import HomeTabScreen from "./src/HomeScreen/index";
 import ProfileScreen from "./src/HomeScreen/ProfileScreen/ProfileScreen";
 
+console.disableYellowBox = true;
 export default class App extends Component {
   render() {
     return (

@@ -1,33 +1,47 @@
 import React, { Component } from "react";
 import { List, ListItem, Text, View } from "native-base";
+import { Avatar, Icon } from "react-native-elements";
 
 export default class FollowersList extends Component {
   constructor(prop) {
     super(prop);
     this.state = {
-      githubFollowers: null
+      githubUsers: null,
+      githubUsersWithName: null
     };
   }
 
   getGithubFollowers() {
-    fetch(`https://api.github.com/users/${this.props.user}/followers`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
+    fetch(
+      `https://api.github.com/users/${this.props.user}/${
+        this.props.getUserType
+      }`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        }
       }
-    })
+    )
       .then(response => response.json())
-      .then(responseJson => this.setState({ githubFollowers: responseJson }));
+      .then(responseJson => this.setState({ githubUsers: responseJson }));
   }
 
   componentDidMount() {
     this.getGithubFollowers();
   }
 
+  componentDidUpdate() {
+    this.getGithubFollowers();
+  }
+
   populateListItem(user) {
     return (
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ marginRight: 8 }}>
+          <Avatar medium rounded source={{ uri: user.avatar_url }} />
+        </View>
         <View style={{ flex: 2 }}>
           <Text>{user["login"]}</Text>
         </View>
@@ -39,18 +53,27 @@ export default class FollowersList extends Component {
   }
 
   createList() {
-    return this.state.githubFollowers.map(user => (
-      <ListItem style={{ height: 80 }} key={user["node_id"]}>
+    return this.state.githubUsers.map(user => (
+      <ListItem
+        style={{ height: 80 }}
+        key={user["node_id"]}
+        onPress={() => {
+          this.props.changeUserHandler(user["login"]);
+        }}>
         {this.populateListItem(user)}
-        {console.log(user)}
       </ListItem>
     ));
   }
 
   render() {
-    if (this.state.githubFollowers) {
+    if (this.state.githubUsers) {
       return <List key="FollowersList">{this.createList()}</List>;
     }
-    return <Text>No followers.</Text>;
+    return (
+      <View
+        style={{ justifyContent: "center", alignContent: "center", margin: 8 }}>
+        <Icon size={140} type="font-awesome" name="github" color="grey" />
+      </View>
+    );
   }
 }

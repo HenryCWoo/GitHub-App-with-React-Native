@@ -16,41 +16,59 @@ import Moment from "moment";
 
 const MyText = props => {
   return (
-    <Text styles={{ fontFamily: "Iowan Old Style" }} {...props}>
+    <Text styles={{ fontFamily: "Roboto" }} {...props}>
       {props.children}
     </Text>
   );
 };
 
 export default class ProfileScreen extends Component {
-  state = {
-    user: "HenryCWoo",
-    githubUser: null
-  };
+  constructor() {
+    super();
+    this.state = {
+      user: "HenryCWoo",
+      prevUser: null,
+      githubUser: null
+    };
+
+    this.changeUserHandler = this.changeUserHandler.bind(this);
+  }
+
+  getGithubUser() {
+    fetch(`https://api.github.com/users/${this.state.user}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => response.json())
+      .then(responseJson =>
+        this.setState({
+          githubUser: responseJson,
+          prevUser: this.state.user
+        })
+      );
+  }
 
   componentDidMount() {
-    let getGithubUser = () =>
-      fetch(`https://api.github.com/users/${this.state.user}`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        }
-      })
-        .then(response => response.json())
-        .then(responseJson => this.setState({ githubUser: responseJson }));
-
-    getGithubUser();
+    this.getGithubUser();
   }
 
   componentDidUpdate() {
-    console.log(this.state.githubUser);
+    if (this.state.user !== this.state.prevUser) {
+      this.getGithubUser();
+    }
+  }
+
+  changeUserHandler(newUser) {
+    let curUser = this.state.user;
+    this.setState({ user: newUser });
   }
 
   renderAvatar() {
     if (this.state.githubUser) {
       var avatar_size = Math.round(dimensions.width / 2);
-      console.log(avatar_size);
       return (
         <View
           style={{
@@ -60,21 +78,19 @@ export default class ProfileScreen extends Component {
             xlarge
             rounded
             source={{ uri: this.state.githubUser.avatar_url }}
-            onPress={() => console.log("Works!")}
-            activeOpacity={0.7}
           />
         </View>
       );
     }
     // Place holder in case of failed API call
-    return (
-      <Icon
-        type="entypo"
-        name="github-with-circle"
-        size={avatar_size}
-        color="darkgrey"
-      />
-    );
+    // return (
+    //   <Icon
+    //     type="entypo"
+    //     name="github-with-circle"
+    //     size={avatar_size}
+    //     color="darkgrey"
+    //   />
+    // );
   }
 
   renderProfileName() {
@@ -239,12 +255,24 @@ export default class ProfileScreen extends Component {
               [
                 "followers",
                 "FOLLOWERS",
-                <FollowersList user={this.state.user} />
+                <FollowersList
+                  user={this.state.user}
+                  getUserType="followers"
+                  changeUserHandler={this.changeUserHandler}
+                />
               ],
-              ["following", "FOLLOWING"]
+              [
+                "following",
+                "FOLLOWING",
+                <FollowersList
+                  user={this.state.user}
+                  getUserType="following"
+                  changeUserHandler={this.changeUserHandler}
+                />
+              ]
             ].map((itemSet, index) => (
               <Tab
-                key={index}
+                key={"tabheader" + index}
                 heading={
                   <TabHeading
                     style={{ backgroundColor: "transparent", flex: 1 }}>
@@ -281,6 +309,7 @@ export default class ProfileScreen extends Component {
               {this.renderAvatar()}
               <View style={{ flex: 1, flexDirection: "row" }}>
                 <Swiper
+                  loop={false}
                   activeDot={<View style={styles.activeDot} />}
                   style={{
                     height: dimensions.height * 0.3
