@@ -4,23 +4,15 @@ import {
   ScrollView,
   ImageBackground,
   Dimensions,
-  Animated,
-  Platform,
-  TouchableOpacity,
   Text
 } from "react-native";
-import { Header, Avatar, Badge, Icon, Tile, Card } from "react-native-elements";
-import {
-  Container,
-  Header as NativeBaseHeader,
-  Content,
-  Tab,
-  Tabs,
-  View as NativeBaseView,
-  TabHeading,
-  ScrollableTab
-} from "native-base";
+import { Header, Avatar, Icon } from "react-native-elements";
+import { Tab, Tabs, TabHeading, ScrollableTab } from "native-base";
 import { StyleSheet } from "react-native";
+import Swiper from "react-native-swiper";
+import PublicRepoList from "./PublicRepoList";
+import FollowersList from "./FollowersList";
+import Moment from "moment";
 
 const MyText = props => {
   return (
@@ -31,28 +23,24 @@ const MyText = props => {
 };
 
 export default class ProfileScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      user: "HenryCWoo",
-      githubUser: null
-    };
-  }
-
-  getGithubUser() {
-    return fetch(`https://api.github.com/users/${this.state.user}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      }
-    })
-      .then(response => response.json())
-      .then(responseJson => this.setState({ githubUser: responseJson }));
-  }
+  state = {
+    user: "HenryCWoo",
+    githubUser: null
+  };
 
   componentDidMount() {
-    this.getGithubUser();
+    let getGithubUser = () =>
+      fetch(`https://api.github.com/users/${this.state.user}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        }
+      })
+        .then(response => response.json())
+        .then(responseJson => this.setState({ githubUser: responseJson }));
+
+    getGithubUser();
   }
 
   componentDidUpdate() {
@@ -66,7 +54,7 @@ export default class ProfileScreen extends Component {
       return (
         <View
           style={{
-            marginTop: Math.round(dimensions.height * 0.1)
+            marginTop: Math.round(dimensions.height * 0.15)
           }}>
           <Avatar
             xlarge
@@ -89,37 +77,43 @@ export default class ProfileScreen extends Component {
     );
   }
 
-  renderProfileName(topMargin, bottomMargin) {
+  renderProfileName() {
     if (this.state.githubUser) {
       return (
-        <View>
-          <MyText
-            style={{
-              textAlign: "center",
-              fontSize: 24,
-              marginTop: topMargin,
-              marginBottom: 2,
-              color: "white"
-            }}>
-            {this.state.githubUser.name}
-          </MyText>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              alignContent: "center",
-              marginBottom: bottomMargin
-            }}>
-            <Icon size={16} type="entypo" name="github" color="white" />
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column"
+          }}>
+          <View style={{ flex: 1 }} />
+          <View style={{ flex: 10 }}>
             <MyText
               style={{
                 textAlign: "center",
-                fontSize: 16,
-                color: "white",
-                marginLeft: 2
+                fontSize: 36,
+                marginTop: 24,
+                marginBottom: 2,
+                color: "white"
               }}>
-              {this.state.githubUser.login}
+              {this.state.githubUser.name}
             </MyText>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignContent: "center"
+              }}>
+              <Icon size={16} type="feather" name="feather" color="lightgrey" />
+              <MyText
+                style={{
+                  textAlign: "center",
+                  fontSize: 16,
+                  color: "lightgrey",
+                  marginLeft: 2
+                }}>
+                {this.state.githubUser.login}
+              </MyText>
+            </View>
           </View>
         </View>
       );
@@ -127,22 +121,64 @@ export default class ProfileScreen extends Component {
     return <MyText>New fone who dis?</MyText>;
   }
 
-  renderGenericBadge(field) {
+  renderGenericBadge(field, iconType, iconName) {
     if (this.state.githubUser) {
       if (this.state.githubUser[field] != null)
         return (
-          <Card
-            containerStyle={{
-              borderRadius: 5,
-              backgroundColor: "rgba(0, 0, 0, .2)",
-              padding: 2,
-              borderColor: "transparent"
+          <View
+            style={{
+              margin: 8,
+              flexDirection: "column",
+              justifyContent: "center",
+              alignContent: "center"
             }}>
-            <MyText style={{ textAlign: "center", color: "white" }}>
-              {this.state.githubUser[field]}
+            {iconType != null && iconName != null ? (
+              <Icon type={iconType} name={iconName} color="white" size={16} />
+            ) : (
+              {}
+            )}
+            <MyText
+              style={{
+                borderRadius: 5
+              }}>
+              <MyText
+                style={{ fontSize: 14, textAlign: "center", color: "white" }}>
+                {this.state.githubUser[field]}
+              </MyText>
             </MyText>
-          </Card>
+          </View>
         );
+    }
+  }
+
+  renderJoinDate(iconType, iconName) {
+    if (this.state.githubUser) {
+      return (
+        <View
+          style={{
+            margin: 8,
+            flexDirection: "column",
+            justifyContent: "center",
+            alignContent: "center"
+          }}>
+          {iconType != null && iconName != null ? (
+            <Icon type={iconType} name={iconName} color="white" size={16} />
+          ) : (
+            {}
+          )}
+          <MyText
+            style={{
+              borderRadius: 5
+            }}>
+            <MyText
+              style={{ fontSize: 14, textAlign: "center", color: "white" }}>
+              {Moment(this.state.githubUser["created_at"]).format(
+                "MMM d, YYYY"
+              )}
+            </MyText>
+          </MyText>
+        </View>
+      );
     }
   }
 
@@ -176,39 +212,55 @@ export default class ProfileScreen extends Component {
   }
 
   renderTabs() {
-    return (
-      <View>
-        <Tabs
-          transparent
-          renderTabBar={() => (
-            <ScrollableTab style={{ backgroundColor: "transparent" }} />
-          )}>
-          <Tab
-            heading={
-              <TabHeading style={{ backgroundColor: "transparent" }}>
-                <Text style={{ color: "white" }}>PUBLIC REPOS</Text>
-              </TabHeading>
-            }>
-            <Text>INSERT THINGS HERE DOOD</Text>
-          </Tab>
-          <Tab
-            heading={
-              <TabHeading style={{ backgroundColor: "transparent" }}>
-                <Text style={{ color: "white" }}>FOLLOWERS</Text>
-              </TabHeading>
-            }
-          />
-          <Tab
-            heading={
-              <TabHeading style={{ backgroundColor: "transparent" }}>
-                <Text style={{ color: "white" }}>FOLLOWING</Text>
-              </TabHeading>
-            }
-          />
-        </Tabs>
-        <Container />
-      </View>
-    );
+    if (this.state.githubUser) {
+      var createTabHeaders = (githubIndex, headerText) => {
+        return (
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <Text style={{ color: "white" }}>{githubIndex}</Text>
+            <Text style={{ color: "grey", fontSize: 12 }}>{headerText}</Text>
+          </View>
+        );
+      };
+
+      return (
+        <View>
+          <Tabs
+            renderTabBar={() => (
+              <ScrollableTab
+                style={{ backgroundColor: "transparent", height: 80 }}
+              />
+            )}>
+            {[
+              [
+                "public_repos",
+                "PUBLIC REPOS",
+                <PublicRepoList user={this.state.user} />
+              ],
+              [
+                "followers",
+                "FOLLOWERS",
+                <FollowersList user={this.state.user} />
+              ],
+              ["following", "FOLLOWING"]
+            ].map((itemSet, index) => (
+              <Tab
+                key={index}
+                heading={
+                  <TabHeading
+                    style={{ backgroundColor: "transparent", flex: 1 }}>
+                    {createTabHeaders(
+                      this.state.githubUser[itemSet[0]],
+                      itemSet[1]
+                    )}
+                  </TabHeading>
+                }>
+                {itemSet[2]}
+              </Tab>
+            ))}
+          </Tabs>
+        </View>
+      );
+    }
   }
 
   render() {
@@ -227,10 +279,25 @@ export default class ProfileScreen extends Component {
           <View style={styles.mainContainer}>
             <View style={{ alignItems: "center" }}>
               {this.renderAvatar()}
-              {this.renderProfileName(16, 24)}
-              {this.renderGenericBadge("bio")}
-              {this.renderGenericBadge("html_url")}
-              {this.renderGenericBadge("email")}
+              <View style={{ flex: 1, flexDirection: "row" }}>
+                <Swiper
+                  activeDot={<View style={styles.activeDot} />}
+                  style={{
+                    height: dimensions.height * 0.3
+                  }}>
+                  {this.renderProfileName(16, 24)}
+                  <View>
+                    {this.renderGenericBadge("bio", "feather", "gift")}
+                    {this.renderJoinDate("feather", "sunset")}
+                    {this.renderGenericBadge(
+                      "html_url",
+                      "feather",
+                      "file-minus"
+                    )}
+                    {this.renderGenericBadge("email", "feather", "help-circle")}
+                  </View>
+                </Swiper>
+              </View>
             </View>
           </View>
           {this.renderTabs()}
@@ -241,7 +308,7 @@ export default class ProfileScreen extends Component {
 }
 
 const dimensions = Dimensions.get("window");
-const backgroundImageHeight = Math.round(dimensions.width * 2);
+const backgroundImageHeight = Math.round(dimensions.width * 2.5);
 const backgroundImageWidth = dimensions.width;
 const styles = StyleSheet.create({
   mainContainer: {
@@ -266,5 +333,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, .6)",
     zIndex: 10
+  },
+  activeDot: {
+    backgroundColor: "white",
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginLeft: 3,
+    marginRight: 3,
+    marginTop: 3,
+    marginBottom: 3
   }
 });
