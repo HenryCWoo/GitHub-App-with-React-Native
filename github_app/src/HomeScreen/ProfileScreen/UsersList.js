@@ -5,36 +5,12 @@ import { Avatar } from "react-native-elements";
 export default class UsersList extends Component {
   constructor(prop) {
     super(prop);
-    this.state = {
-      githubUsers: null,
-      githubUsersWithName: null
-    };
+    this.state = {};
   }
 
-  getGithubFollowers() {
-    fetch(
-      `https://api.github.com/users/${this.props.user}/${
-        this.props.getUserType
-      }`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        }
-      }
-    )
-      .then(response => response.json())
-      .then(responseJson => this.setState({ githubUsers: responseJson }));
-  }
+  componentDidMount() {}
 
-  componentDidMount() {
-    this.getGithubFollowers();
-  }
-
-  componentDidUpdate() {
-    this.getGithubFollowers();
-  }
+  componentDidUpdate() {}
 
   populateListItem(user) {
     return (
@@ -53,7 +29,7 @@ export default class UsersList extends Component {
   }
 
   createList() {
-    return this.state.githubUsers.map(user => (
+    return this.props.githubUsers.map(user => (
       <ListItem
         style={{ height: 80 }}
         key={user["node_id"]}
@@ -66,7 +42,7 @@ export default class UsersList extends Component {
   }
 
   render() {
-    if (this.state.githubUsers) {
+    if (this.props.githubUsers) {
       return <List key="UsersList">{this.createList()}</List>;
     }
     return (

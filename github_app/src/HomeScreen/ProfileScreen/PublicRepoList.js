@@ -11,44 +11,9 @@ export default class PublicRepoList extends Component {
     };
   }
 
-  getGithubRepos() {
-    fetch(`https://api.github.com/users/${this.props.user}/repos`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      }
-    })
-      .then(response => response.json())
-      .then(responseJson =>
-        this.setState({
-          githubRepos: responseJson
-        })
-      );
-  }
+  componentDidMount() {}
 
-  componentDidMount() {
-    this.getGithubRepos();
-  }
-
-  componentDidUpdate() {
-    this.getGithubRepos();
-  }
-
-  // getLanguageIcon(repoLanguage) {
-  //   let createIcon = iconNameColorPair => (
-  //     <Icon
-  //       type="material-community-icons"
-  //       name={iconNameColorPair[0]}
-  //       color={iconNameColorPair[1]}
-  //     />
-  //   );
-  //   var colorDict = { Python: ["python", "green"] };
-  //   let nameValuePair = colorDict[repoLanguage];
-  //   if (nameValuePair) {
-  //     return createIcon(colorDict[repoLanguage]);
-  //   }
-  // }
+  componentDidUpdate() {}
 
   populateListItem(repo) {
     return (
@@ -70,32 +35,31 @@ export default class PublicRepoList extends Component {
   }
 
   createList() {
-    if (this.state.githubRepos) {
-      const repoArray = this.state.githubRepos;
+    if (this.props.githubRepos) {
+      const repoArray = this.props.githubRepos;
       return repoArray.map(repo => (
         <ListItem
           style={{ height: 80 }}
           key={repo["id"]}
           onPress={() => {
-            Linking.canOpenURL(url)
+            Linking.canOpenURL(repo["html_url"])
               .then(supported => {
                 if (!supported) {
-                  console.log("Can't handle url: " + url);
+                  console.log("Can't handle url: " + repo["html_url"]);
                 } else {
-                  return Linking.openURL(url);
+                  return Linking.openURL(repo["html_url"]);
                 }
               })
               .catch(err => console.error("An error occurred", err));
           }}>
           {this.populateListItem(repo)}
-          {console.log(repo)}
         </ListItem>
       ));
     }
   }
 
   render() {
-    if (this.state.githubRepos) {
+    if (this.props.githubRepos) {
       return <List key="PublicReposList">{this.createList()}</List>;
     }
     return (

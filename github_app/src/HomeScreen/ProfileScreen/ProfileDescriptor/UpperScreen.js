@@ -213,7 +213,7 @@ class UpperScreen extends Component {
 }
 
 const dimensions = Dimensions.get("window");
-const backgroundImageHeight = Math.round(dimensions.width * 2.8);
+const backgroundImageHeight = Math.round(dimensions.width * 2.5);
 const backgroundImageWidth = dimensions.width;
 const styles = StyleSheet.create({
   mainContainer: {
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   profileBackground: {
     width: backgroundImageWidth,
     height: backgroundImageHeight,
-    transform: [{ translateY: -backgroundImageHeight * 0.3 }],
+    transform: [{ translateY: -backgroundImageHeight * 0.2 }],
     zIndex: -1,
     position: "absolute"
   },

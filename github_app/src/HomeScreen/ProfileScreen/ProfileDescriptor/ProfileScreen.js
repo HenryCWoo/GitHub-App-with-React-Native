@@ -18,6 +18,32 @@ export default class ProfileScreen extends Component {
     this.changeUserHandler = this.changeUserHandler.bind(this);
   }
 
+  updateUserInfo() {
+    this.getGithubUser();
+    this.getRequestChangeState(
+      `/users/${this.state.user}/repos`,
+      "githubRepos"
+    );
+    this.getRequestChangeState(
+      `/users/${this.state.user}/followers`,
+      "githubFollowers"
+    );
+    this.getRequestChangeState(
+      `/users/${this.state.user}/following`,
+      "githubFollowing"
+    );
+  }
+
+  componentDidMount() {
+    this.updateUserInfo();
+  }
+
+  componentDidUpdate() {
+    if (this.state.user !== this.state.prevUser) {
+      this.updateUserInfo();
+    }
+  }
+
   getGithubUser() {
     fetch(`https://api.github.com/users/${this.state.user}`, {
       method: "GET",
@@ -34,15 +60,20 @@ export default class ProfileScreen extends Component {
         })
       );
   }
-
-  componentDidMount() {
-    this.getGithubUser();
-  }
-
-  componentDidUpdate() {
-    if (this.state.user !== this.state.prevUser) {
-      this.getGithubUser();
-    }
+  getRequestChangeState(endpoint, stateKey) {
+    fetch(`https://api.github.com` + endpoint, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => response.json())
+      .then(responseJson =>
+        this.setState({
+          [stateKey]: responseJson
+        })
+      );
   }
 
   changeUserHandler(newUser) {
@@ -59,57 +90,62 @@ export default class ProfileScreen extends Component {
           </View>
         );
       };
-
-      return (
-        <View>
-          <Tabs
-            renderTabBar={() => (
-              <ScrollableTab
-                style={{ backgroundColor: "transparent", height: 80 }}
-              />
-            )}>
-            {[
-              [
-                "public_repos",
-                "PUBLIC REPOS",
-                <PublicRepoList user={this.state.user} />
-              ],
-              [
-                "followers",
-                "FOLLOWERS",
-                <UsersList
-                  user={this.state.user}
-                  getUserType="followers"
-                  changeUserHandler={this.changeUserHandler}
+      if (this.state.githubRepos) {
+        return (
+          <View>
+            <Tabs
+              renderTabBar={() => (
+                <ScrollableTab
+                  style={{ backgroundColor: "transparent", height: 80 }}
                 />
-              ],
-              [
-                "following",
-                "FOLLOWING",
-                <UsersList
-                  user={this.state.user}
-                  getUserType="following"
-                  changeUserHandler={this.changeUserHandler.bind(this)}
-                />
-              ]
-            ].map((itemSet, index) => (
-              <Tab
-                key={"tabheader" + index}
-                heading={
-                  <TabHeading
-                    style={{ backgroundColor: "transparent", flex: 1 }}>
-                    {createTabHeaders(
-                      this.state.githubUser[itemSet[0]],
-                      itemSet[1]
-                    )}
-                  </TabHeading>
-                }>
-                {itemSet[2]}
-              </Tab>
-            ))}
-          </Tabs>
-        </View>
-      );
+              )}>
+              {[
+                // First Item is used to index the count
+                // Second is tab header
+                // Third is the component
+                [
+                  "public_repos",
+                  "PUBLIC REPOS",
+                  <PublicRepoList
+                    githubRepos={this.state.githubRepos}
+                    user={this.state.user}
+                  />
+                ],
+                [
+                  "followers",
+                  "FOLLOWERS",
+                  <UsersList
+                    githubUsers={this.state.githubFollowers}
+                    changeUserHandler={this.changeUserHandler.bind(this)}
+                  />
+                ],
+                [
+                  "following",
+                  "FOLLOWING",
+                  <UsersList
+                    githubUsers={this.state.githubFollowing}
+                    changeUserHandler={this.changeUserHandler.bind(this)}
+                  />
+                ]
+              ].map((itemSet, index) => (
+                <Tab
+                  key={"tabheader" + index}
+                  heading={
+                    <TabHeading
+                      style={{ backgroundColor: "transparent", flex: 1 }}>
+                      {createTabHeaders(
+                        this.state.githubUser[itemSet[0]],
+                        itemSet[1]
+                      )}
+                    </TabHeading>
+                  }>
+                  {itemSet[2]}
+                </Tab>
+              ))}
+            </Tabs>
+          </View>
+        );
+      }
     }
   }
 
@@ -124,6 +160,7 @@ export default class ProfileScreen extends Component {
             style: { color: "white" }
           }}
         />
+
         <ScrollView>
           {this.state.githubUser ? (
             <UpperScreen githubUser={this.state.githubUser} />
@@ -138,8 +175,6 @@ export default class ProfileScreen extends Component {
 }
 
 const dimensions = Dimensions.get("window");
-const backgroundImageHeight = Math.round(dimensions.width * 2.5);
-const backgroundImageWidth = dimensions.width;
 const styles = StyleSheet.create({
   outerContainer: {
     elevation: 0,
