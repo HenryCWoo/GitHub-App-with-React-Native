@@ -7,7 +7,8 @@ export default class PublicRepoList extends Component {
     super(props);
 
     this.state = {
-      githubRepos: null
+      githubRepos: null,
+      prevUser: null
     };
   }
 
@@ -22,7 +23,8 @@ export default class PublicRepoList extends Component {
       .then(response => response.json())
       .then(responseJson =>
         this.setState({
-          githubRepos: responseJson
+          githubRepos: responseJson,
+          prevUser: this.props.user
         })
       );
   }
@@ -32,7 +34,9 @@ export default class PublicRepoList extends Component {
   }
 
   componentDidUpdate() {
-    this.getGithubRepos();
+    if (this.state.prevUser !== this.props.user) {
+      this.getGithubRepos();
+    }
   }
 
   // getLanguageIcon(repoLanguage) {
@@ -74,7 +78,7 @@ export default class PublicRepoList extends Component {
       const repoArray = this.state.githubRepos;
       return repoArray.map(repo => (
         <ListItem
-          style={{ height: 80 }}
+          style={{ alignSelf: "baseline" }}
           key={repo["id"]}
           onPress={() => {
             Linking.canOpenURL(url)
@@ -100,8 +104,18 @@ export default class PublicRepoList extends Component {
     }
     return (
       <View
-        style={{ justifyContent: "center", alignContent: "center", margin: 8 }}>
-        <Icon size={140} type="font-awesome" name="github" color="grey" />
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          margin: 8,
+          flex: 1,
+          flexDirection: "column"
+        }}>
+        <Icon
+          type="FontAwesome"
+          name="github"
+          style={{ fontSize: 50, color: "grey" }}
+        />
       </View>
     );
   }

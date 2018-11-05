@@ -7,7 +7,8 @@ export default class UsersList extends Component {
     super(prop);
     this.state = {
       githubUsers: null,
-      githubUsersWithName: null
+      githubUsersWithName: null,
+      prevUser: null
     };
   }
 
@@ -33,7 +34,9 @@ export default class UsersList extends Component {
   }
 
   componentDidUpdate() {
-    this.getGithubFollowers();
+    if (this.state.prevUser !== this.props.user) {
+      this.getGithubFollowers();
+    }
   }
 
   populateListItem(user) {
@@ -55,7 +58,7 @@ export default class UsersList extends Component {
   createList() {
     return this.state.githubUsers.map(user => (
       <ListItem
-        style={{ height: 80 }}
+        style={{ alignSelf: "baseline" }}
         key={user["node_id"]}
         onPress={() => {
           this.props.changeUserHandler(user["login"]);
@@ -71,8 +74,18 @@ export default class UsersList extends Component {
     }
     return (
       <View
-        style={{ justifyContent: "center", alignContent: "center", margin: 8 }}>
-        <Icon size={140} type="font-awesome" name="github" color="grey" />
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          margin: 8,
+          flex: 1,
+          flexDirection: "column"
+        }}>
+        <Icon
+          type="FontAwesome"
+          name="github"
+          style={{ fontSize: 50, color: "grey" }}
+        />
       </View>
     );
   }

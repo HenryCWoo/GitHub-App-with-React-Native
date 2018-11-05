@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import {
   View,
-  ScrollView,
   Dimensions,
   Text,
   StyleSheet,
@@ -142,7 +141,7 @@ class UpperScreen extends Component {
           ) : (
             {}
           )}
-          <Text style={{ borderRadius: 5 }}>
+          <Text>
             <Text style={{ fontSize: 14, textAlign: "center", color: "white" }}>
               {Moment(this.props.githubUser["created_at"]).format(
                 "MMM d, YYYY"
@@ -186,26 +185,21 @@ class UpperScreen extends Component {
   render() {
     return (
       <View>
-        {this.renderBackDrop()}
+        {/* {this.renderBackDrop()} */}
         <View style={styles.mainContainer}>
           {this.renderAvatar()}
-          <View style={{ flex: 1, flexDirection: "row" }}>
-            <Swiper
-              loop={false}
-              activeDot={<View style={styles.activeDot} />}
-              style={{
-                height: dimensions.height * 0.35
-              }}>
-              {this.renderProfileName(16, 24)}
-              <View>
-                {this.renderGenericBadge("bio", "Feather", "info")}
-                {this.renderGenericBadge("html_url", "Feather", "globe")}
-                {this.renderGenericBadge("email", "Feather", "at-sign")}
-                {this.renderJoinDate("FontAwesome", "github")}
-                <View style={{ margin: 36 }} />
-              </View>
-            </Swiper>
-          </View>
+          <Swiper
+            loop={false}
+            activeDot={<View style={styles.activeDot} />}
+            style={{ height: dimensions.height * 0.3 }}>
+            {this.renderProfileName(16, 24)}
+            <View>
+              {this.renderGenericBadge("bio", "Feather", "info")}
+              {this.renderGenericBadge("html_url", "Feather", "globe")}
+              {this.renderGenericBadge("email", "Feather", "at-sign")}
+              {this.renderJoinDate("FontAwesome", "github")}
+            </View>
+          </Swiper>
         </View>
       </View>
     );
@@ -213,7 +207,7 @@ class UpperScreen extends Component {
 }
 
 const dimensions = Dimensions.get("window");
-const backgroundImageHeight = Math.round(dimensions.width * 2.8);
+const backgroundImageHeight = Math.round(dimensions.width * 2.5);
 const backgroundImageWidth = dimensions.width;
 const styles = StyleSheet.create({
   mainContainer: {

@@ -1,16 +1,32 @@
 import React, { Component } from "react";
-import { View, ScrollView, Dimensions, Text, StyleSheet } from "react-native";
-import { Header } from "react-native-elements";
-import { Tab, Tabs, TabHeading, ScrollableTab } from "native-base";
-import PublicRepoList from "../PublicRepoList";
-import UsersList from "../UsersList";
+import {
+  View,
+  ScrollView,
+  Text,
+  Alert,
+  ImageBackground,
+  Dimensions,
+  StyleSheet
+} from "react-native";
+import {
+  Tab,
+  Tabs,
+  TabHeading,
+  Icon,
+  ScrollableTab,
+  Button
+} from "native-base";
+import PublicRepoList from "./Lists/PublicRepoList";
+import UsersList from "./Lists/UsersList";
 import UpperScreen from "./UpperScreen";
+import { _storeData, storageKeys } from "../../utils/AsyncStorageOps";
 
 export default class ProfileScreen extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      user: "HenryCWoo",
+      user: this.props.navigation.state.params.user,
+      accessToken: this.props.navigation.state.params.accessToken,
       prevUser: null,
       githubUser: null
     };
@@ -41,12 +57,28 @@ export default class ProfileScreen extends Component {
 
   componentDidUpdate() {
     if (this.state.user !== this.state.prevUser) {
+      // This check prevents infinite rendering
       this.getGithubUser();
     }
   }
 
   changeUserHandler(newUser) {
     this.setState({ user: newUser });
+  }
+
+  renderBackDrop() {
+    if (this.state.user && this.state.githubUser) {
+      return (
+        <View>
+          <ImageBackground
+            style={styles.profileBackground}
+            source={{ uri: this.state.githubUser.avatar_url }}
+            blurRadius={10}>
+            <View style={styles.dimBackground} />
+          </ImageBackground>
+        </View>
+      );
+    }
   }
 
   renderTabs() {
@@ -89,7 +121,7 @@ export default class ProfileScreen extends Component {
                 <UsersList
                   user={this.state.user}
                   getUserType="following"
-                  changeUserHandler={this.changeUserHandler.bind(this)}
+                  changeUserHandler={this.changeUserHandler}
                 />
               ]
             ].map((itemSet, index) => (
@@ -113,18 +145,46 @@ export default class ProfileScreen extends Component {
     }
   }
 
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerTitle: (
+        <Text style={{ color: "white", fontSize: 14 }}>Profile</Text>
+      ),
+      headerLeft: (
+        <Button
+          transparent
+          onPress={() => {
+            Alert.alert(
+              "Logout?",
+              "",
+              [
+                {
+                  text: "Cancel"
+                },
+                {
+                  text: "Confirm",
+                  onPress: () => {
+                    _storeData(storageKeys.AUTH_CODE_KEY, "");
+                    navigation.navigate("LoginScreen");
+                  }
+                }
+              ],
+              { cancelable: false }
+            );
+          }}>
+          <Icon type="Feather" name="log-out" style={{ color: "white" }} />
+        </Button>
+      ),
+      headerTransparent: true,
+      headerStyle: { borderBottomWidth: 0 }
+    };
+  };
+
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <Header
-          backgroundColor="transparent"
-          outerContainerStyles={styles.outerContainer}
-          centerComponent={{
-            text: "Profile",
-            style: { color: "white" }
-          }}
-        />
-        <ScrollView>
+        {this.renderBackDrop()}
+        <ScrollView bounces={false}>
           {this.state.githubUser ? (
             <UpperScreen githubUser={this.state.githubUser} />
           ) : (
@@ -138,15 +198,19 @@ export default class ProfileScreen extends Component {
 }
 
 const dimensions = Dimensions.get("window");
-const backgroundImageHeight = Math.round(dimensions.width * 2.5);
+const backgroundImageHeight = Math.round(dimensions.width * 2.2);
 const backgroundImageWidth = dimensions.width;
 const styles = StyleSheet.create({
-  outerContainer: {
-    elevation: 0,
-    shadowOpacity: 0,
-    borderBottomWidth: 0,
-    zIndex: 100,
-    position: "absolute",
-    alignSelf: "center"
+  profileBackground: {
+    width: backgroundImageWidth,
+    height: backgroundImageHeight,
+    transform: [{ translateY: -backgroundImageHeight * 0.3 }],
+    zIndex: -1,
+    position: "absolute"
+  },
+  dimBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, .6)",
+    zIndex: 10
   }
 });
