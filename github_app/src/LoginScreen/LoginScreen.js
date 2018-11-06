@@ -122,12 +122,14 @@ export default class LoginScreen extends Component {
             user: userInfo["login"],
             basicCredentials: credentials
           });
+          // If remember me checkbox is checked, store only the username for next time
           if (this.state.rememberMe) {
             _storeData(storageKeys.USERNAME, username);
           } else {
             _storeData(storageKeys.USERNAME, "");
           }
         } else {
+          // Failed login attempt
           Alert.alert("Invalid username\nand/or password!", "Try again", [
             { text: "Ok" }
           ]);

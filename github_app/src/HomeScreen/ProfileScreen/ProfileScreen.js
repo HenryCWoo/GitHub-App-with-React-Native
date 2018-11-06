@@ -20,15 +20,21 @@ import PublicRepoList from "./Lists/PublicRepoList";
 import UsersList from "./Lists/UsersList";
 import UpperScreen from "./UpperScreen";
 import { _storeData, storageKeys } from "../../utils/AsyncStorageOps";
+import NotificationsList, {
+  countUnreadNotifications
+} from "./Lists/NotificationsList";
 
 export default class ProfileScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: this.props.navigation.state.params.user,
+      loggedInUser: this.props.navigation.state.params.user,
       accessToken: this.props.navigation.state.params.accessToken,
-      prevUser: null,
-      githubUser: null
+      basicCredentials: this.props.navigation.state.params.basicCredentials,
+      user: this.props.navigation.state.params.user, //Current user to display
+      prevUser: null, //Detects change in user and prevents infinite rerenders
+      githubUser: null, //Holds JSON object of user info
+      unreadNotifs: 0 //Count of unread notifications
     };
 
     this.changeUserHandler = this.changeUserHandler.bind(this);
@@ -51,8 +57,32 @@ export default class ProfileScreen extends Component {
       );
   }
 
-  componentDidMount() {
+  getNotifications() {
+    if (this.state.loggedInUser === this.state.user) {
+      let headers = new Headers();
+      headers.append("all", "true");
+      if (this.state.basicCredentials) {
+        headers.append("Authorization", "Basic " + this.state.basicCredentials);
+      } else if (this.state.accessToken) {
+        headers.append("Authorization", "Bearer " + this.state.accessToken);
+      }
+      fetch(`https://api.github.com/notifications`, {
+        method: "GET",
+        headers: headers
+      })
+        .then(response => response.json())
+        .then(responseJson =>
+          this.setState({
+            notifications: responseJson,
+            unreadNotifs: countUnreadNotifications(responseJson)
+          })
+        );
+    }
+  }
+
+  componentWillMount() {
     this.getGithubUser();
+    this.getNotifications();
   }
 
   componentDidUpdate() {
@@ -123,22 +153,59 @@ export default class ProfileScreen extends Component {
                   getUserType="following"
                   changeUserHandler={this.changeUserHandler}
                 />
-              ]
-            ].map((itemSet, index) => (
-              <Tab
-                key={"tabheader" + index}
-                heading={
-                  <TabHeading
-                    style={{ backgroundColor: "transparent", flex: 1 }}>
-                    {createTabHeaders(
-                      this.state.githubUser[itemSet[0]],
-                      itemSet[1]
-                    )}
-                  </TabHeading>
-                }>
-                {itemSet[2]}
-              </Tab>
-            ))}
+              ],
+              "notifications"
+            ].map((itemSet, index) => {
+              if (
+                this.state.user === this.state.loggedInUser &&
+                itemSet === "notifications"
+              ) {
+                return (
+                  <Tab
+                    key={"tabheader" + index}
+                    heading={
+                      <TabHeading
+                        style={{ backgroundColor: "transparent", flex: 1 }}>
+                        <View
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center"
+                          }}>
+                          <Text style={{ color: "white" }}>
+                            {this.state.unreadNotifs}
+                          </Text>
+                          <Text style={{ color: "grey", fontSize: 12 }}>
+                            UNREAD
+                          </Text>
+                          <Text style={{ color: "grey", fontSize: 12 }}>
+                            NOTIFICATIONS
+                          </Text>
+                        </View>
+                      </TabHeading>
+                    }>
+                    <NotificationsList
+                      notifications={this.state.notifications}
+                    />
+                  </Tab>
+                );
+              } else if (itemSet !== "notifications") {
+                return (
+                  <Tab
+                    key={"tabheader" + index}
+                    heading={
+                      <TabHeading
+                        style={{ backgroundColor: "transparent", flex: 1 }}>
+                        {createTabHeaders(
+                          this.state.githubUser[itemSet[0]],
+                          itemSet[1]
+                        )}
+                      </TabHeading>
+                    }>
+                    {itemSet[2]}
+                  </Tab>
+                );
+              }
+            })}
           </Tabs>
         </View>
       );

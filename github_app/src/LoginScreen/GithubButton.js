@@ -23,7 +23,7 @@ export default class GithubButton extends Component {
       }
     };
 
-    let url = `https://github.com/login/oauth/authorize?client_id=${client_id}`;
+    let url = `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=repo`;
     Linking.openURL(url);
     Linking.addEventListener("url", responseUrl => {
       let code = getCode(responseUrl.url);
