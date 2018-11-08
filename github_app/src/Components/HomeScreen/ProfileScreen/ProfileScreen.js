@@ -38,6 +38,8 @@ export default class ProfileScreen extends Component {
     };
 
     this.changeUserHandler = this.changeUserHandler.bind(this);
+    this.getNotifications = this.getNotifications.bind(this);
+    this.navigateToRepoScreen = this.navigateToRepoScreen.bind(this);
   }
 
   getGithubUser() {
@@ -58,29 +60,37 @@ export default class ProfileScreen extends Component {
   }
 
   getNotifications() {
-    if (this.state.loggedInUser === this.state.user) {
-      let headers = new Headers();
-      headers.append("all", "true");
-      if (this.state.basicCredentials) {
-        headers.append("Authorization", "Basic " + this.state.basicCredentials);
-      } else if (this.state.accessToken) {
-        headers.append("Authorization", "Bearer " + this.state.accessToken);
-      }
-      fetch(`https://api.github.com/notifications`, {
-        method: "GET",
-        headers: headers
-      })
-        .then(response => response.json())
-        .then(responseJson =>
-          this.setState({
-            notifications: responseJson,
-            unreadNotifs: countUnreadNotifications(responseJson)
-          })
-        );
+    let headers = new Headers();
+    headers.append("all", true);
+    if (this.state.basicCredentials) {
+      headers.append("Authorization", "Basic " + this.state.basicCredentials);
+    } else if (this.state.accessToken) {
+      headers.append("Authorization", "Bearer " + this.state.accessToken);
     }
+    fetch(`https://api.github.com/notifications`, {
+      method: "GET",
+      headers: headers
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(responseJson => {
+        this.setState({
+          notifications: responseJson,
+          unreadNotifs: countUnreadNotifications(responseJson)
+        });
+      });
   }
 
-  componentWillMount() {
+  navigateToRepoScreen(repoData) {
+    this.props.navigation.navigate("RepoScreen", { repo: repoData });
+  }
+
+  componentDidMount() {
+    this.props.navigation.setParams({
+      changeUserHandler: this.changeUserHandler,
+      navigateToRepoScreen: this.navigateToRepoScreen
+    });
     this.getGithubUser();
     this.getNotifications();
   }
@@ -134,7 +144,10 @@ export default class ProfileScreen extends Component {
               [
                 "public_repos",
                 "PUBLIC REPOS",
-                <PublicRepoList user={this.state.user} />
+                <PublicRepoList
+                  user={this.state.user}
+                  navigateToRepoScreen={this.navigateToRepoScreen}
+                />
               ],
               [
                 "followers",
@@ -185,6 +198,9 @@ export default class ProfileScreen extends Component {
                     }>
                     <NotificationsList
                       notifications={this.state.notifications}
+                      basicCredentials={this.state.basicCredentials}
+                      accessToken={this.state.accessToken}
+                      getNotifications={this.getNotifications}
                     />
                   </Tab>
                 );
@@ -213,6 +229,8 @@ export default class ProfileScreen extends Component {
   }
 
   static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+
     return {
       headerTitle: (
         <Text style={{ color: "white", fontSize: 14 }}>Profile</Text>
@@ -225,9 +243,7 @@ export default class ProfileScreen extends Component {
               "Logout?",
               "",
               [
-                {
-                  text: "Cancel"
-                },
+                { text: "Cancel" },
                 {
                   text: "Confirm",
                   onPress: () => {
@@ -240,6 +256,18 @@ export default class ProfileScreen extends Component {
             );
           }}>
           <Icon type="Feather" name="log-out" style={{ color: "white" }} />
+        </Button>
+      ),
+      headerRight: (
+        <Button
+          transparent
+          onPress={() => {
+            navigation.navigate("SearchScreen", {
+              changeUserHandler: params.changeUserHandler,
+              navigateToRepoScreen: params.navigateToRepoScreen
+            });
+          }}>
+          <Icon type="FontAwesome" name="search" style={{ color: "white" }} />
         </Button>
       ),
       headerTransparent: true,

@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { View, StatusBar } from "react-native";
-import ProfileScreen from "./src/HomeScreen/ProfileScreen/ProfileScreen";
-import LoginScreen from "./src/LoginScreen/LoginScreen";
+import ProfileScreen from "./src/Components/HomeScreen/ProfileScreen/ProfileScreen";
+import LoginScreen from "./src/Components/LoginScreen/LoginScreen";
+import SearchScreen from "./src/Components/SearchScreen/SearchScreen";
+import RepoScreen from "./src/Components/HomeScreen/RepoScreen/RepoScreen";
 import { StackNavigator } from "react-navigation";
 
 console.disableYellowBox = true;
@@ -27,6 +29,12 @@ const RootStack = StackNavigator(
     },
     ProfileScreen: {
       screen: ProfileScreen
+    },
+    SearchScreen: {
+      screen: SearchScreen
+    },
+    RepoScreen: {
+      screen: RepoScreen
     }
   },
   {

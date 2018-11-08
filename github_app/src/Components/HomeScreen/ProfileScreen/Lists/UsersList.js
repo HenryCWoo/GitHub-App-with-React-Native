@@ -70,7 +70,9 @@ export default class UsersList extends Component {
 
   render() {
     if (this.state.githubUsers) {
-      return <List key="UsersList">{this.createList()}</List>;
+      if (this.state.githubUsers.length > 0) {
+        return <List key="UsersList">{this.createList()}</List>;
+      }
     }
     return (
       <View

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Linking } from "react-native";
-import { List, ListItem, Text, View, Icon } from "native-base";
+import { List, ListItem, Text, View, Icon, Badge } from "native-base";
+import { Avatar } from "react-native-elements";
 
 export default class PublicRepoList extends Component {
   constructor(props) {
@@ -39,6 +40,41 @@ export default class PublicRepoList extends Component {
     }
   }
 
+  drawLanguageBadge(repo) {
+    if (repo["language"]) {
+      return (
+        <View style={{ flexDirection: "row" }}>
+          <Badge style={{ backgroundColor: "grey" }}>
+            <Text style={{ fontSize: 12, color: "white" }}>
+              {repo["language"]}
+            </Text>
+          </Badge>
+        </View>
+      );
+    }
+  }
+
+  drawMITLicense(repo) {
+    if (repo["license"]) {
+      if (repo["license"]["name"] == "MIT License") {
+        return (
+          <View style={{ flexDirection: "row", marginTop: 4 }}>
+            <Icon
+              style={{
+                fontSize: 14,
+                color: "grey",
+                marginRight: 4
+              }}
+              type="FontAwesome"
+              name="balance-scale"
+            />
+            <Text style={{ fontSize: 12, color: "grey" }}>MIT License</Text>
+          </View>
+        );
+      }
+    }
+  }
+
   populateListItem(repo) {
     return (
       <View style={{ flexDirection: "row" }}>
@@ -52,8 +88,15 @@ export default class PublicRepoList extends Component {
           </Text>
         </View>
         <View
-          style={{ flex: 1, flexDirection: "row", justifyContent: "flex-end" }}
-        />
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "flex-end"
+          }}>
+          {this.drawLanguageBadge(repo)}
+          {this.drawMITLicense(repo)}
+        </View>
       </View>
     );
   }
@@ -65,17 +108,7 @@ export default class PublicRepoList extends Component {
         <ListItem
           style={{ alignSelf: "baseline" }}
           key={repo["id"]}
-          onPress={() => {
-            Linking.canOpenURL(url)
-              .then(supported => {
-                if (!supported) {
-                  console.log("Can't handle url: " + url);
-                } else {
-                  return Linking.openURL(url);
-                }
-              })
-              .catch(err => console.error("An error occurred", err));
-          }}>
+          onPress={() => this.props.navigateToRepoScreen(repo)}>
           {this.populateListItem(repo)}
         </ListItem>
       ));
@@ -84,7 +117,9 @@ export default class PublicRepoList extends Component {
 
   render() {
     if (this.state.githubRepos) {
-      return <List key="PublicReposList">{this.createList()}</List>;
+      if (this.state.githubRepos.length > 0) {
+        return <List key="PublicReposList">{this.createList()}</List>;
+      }
     }
     return (
       <View
@@ -92,6 +127,8 @@ export default class PublicRepoList extends Component {
           justifyContent: "center",
           alignItems: "center",
           margin: 8,
+          paddingTop: 100,
+          paddingBottom: 100,
           flex: 1,
           flexDirection: "column"
         }}>
