@@ -1,1 +1,1 @@
-<img src="./readme_resources/login_and_profile.gif" width="100" height="216.6666" />
+<img src="./readme_resources/login_and_profile.gif" width="500" height="1083.333" />
