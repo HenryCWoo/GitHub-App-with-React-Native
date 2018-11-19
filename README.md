@@ -1,1 +1,1 @@
-<img src="./readme_resources/login_and_profile.gif" width="40" height="40" />
+![Alt Text](./readme_resources/login_and_profile.gif)
