@@ -9,6 +9,18 @@ Users can look for GitHub users, find repositories, and view their notifications
 <img src="./readme_resources/login_and_profile.gif" width="320" height="650" />
 </p>
 
+<p align="center">
+<img src="./readme_resources/repo.gif" width="320" height="650" />
+</p>
+
+<p align="center">
+<img src="./readme_resources/profile_change.gif" width="320" height="650" />
+</p>
+
+<p align="center">
+<img src="./readme_resources/search.gif" width="320" height="650" />
+</p>
+
 ## Built With
 
 * [React Native](https://facebook.github.io/react-native/) - The mobile framework used
@@ -17,7 +29,7 @@ Users can look for GitHub users, find repositories, and view their notifications
 
 ## Authors
 
-**Henry Woo**
+**Henry Woo** - CS@Illinois
 
 ## License
 
