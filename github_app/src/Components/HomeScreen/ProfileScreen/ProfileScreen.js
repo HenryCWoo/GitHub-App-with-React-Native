@@ -20,18 +20,26 @@ import PublicRepoList from "./Lists/PublicRepoList";
 import UsersList from "./Lists/UsersList";
 import UpperScreen from "./UpperScreen";
 import { _storeData, storageKeys } from "../../utils/AsyncStorageOps";
+import NotificationsList, {
+  countUnreadNotifications
+} from "./Lists/NotificationsList";
 
 export default class ProfileScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: this.props.navigation.state.params.user,
+      loggedInUser: this.props.navigation.state.params.user,
       accessToken: this.props.navigation.state.params.accessToken,
-      prevUser: null,
-      githubUser: null
+      basicCredentials: this.props.navigation.state.params.basicCredentials,
+      user: this.props.navigation.state.params.user, //Current user to display
+      prevUser: null, //Detects change in user and prevents infinite rerenders
+      githubUser: null, //Holds JSON object of user info
+      unreadNotifs: 0 //Count of unread notifications
     };
 
     this.changeUserHandler = this.changeUserHandler.bind(this);
+    this.getNotifications = this.getNotifications.bind(this);
+    this.navigateToRepoScreen = this.navigateToRepoScreen.bind(this);
   }
 
   getGithubUser() {
@@ -51,8 +59,40 @@ export default class ProfileScreen extends Component {
       );
   }
 
+  getNotifications() {
+    let headers = new Headers();
+    headers.append("all", true);
+    if (this.state.basicCredentials) {
+      headers.append("Authorization", "Basic " + this.state.basicCredentials);
+    } else if (this.state.accessToken) {
+      headers.append("Authorization", "Bearer " + this.state.accessToken);
+    }
+    fetch(`https://api.github.com/notifications`, {
+      method: "GET",
+      headers: headers
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(responseJson => {
+        this.setState({
+          notifications: responseJson,
+          unreadNotifs: countUnreadNotifications(responseJson)
+        });
+      });
+  }
+
+  navigateToRepoScreen(repoData) {
+    this.props.navigation.navigate("RepoScreen", { repo: repoData });
+  }
+
   componentDidMount() {
+    this.props.navigation.setParams({
+      changeUserHandler: this.changeUserHandler,
+      navigateToRepoScreen: this.navigateToRepoScreen
+    });
     this.getGithubUser();
+    this.getNotifications();
   }
 
   componentDidUpdate() {
@@ -104,7 +144,10 @@ export default class ProfileScreen extends Component {
               [
                 "public_repos",
                 "PUBLIC REPOS",
-                <PublicRepoList user={this.state.user} />
+                <PublicRepoList
+                  user={this.state.user}
+                  navigateToRepoScreen={this.navigateToRepoScreen}
+                />
               ],
               [
                 "followers",
@@ -123,22 +166,62 @@ export default class ProfileScreen extends Component {
                   getUserType="following"
                   changeUserHandler={this.changeUserHandler}
                 />
-              ]
-            ].map((itemSet, index) => (
-              <Tab
-                key={"tabheader" + index}
-                heading={
-                  <TabHeading
-                    style={{ backgroundColor: "transparent", flex: 1 }}>
-                    {createTabHeaders(
-                      this.state.githubUser[itemSet[0]],
-                      itemSet[1]
-                    )}
-                  </TabHeading>
-                }>
-                {itemSet[2]}
-              </Tab>
-            ))}
+              ],
+              "notifications"
+            ].map((itemSet, index) => {
+              if (
+                this.state.user === this.state.loggedInUser &&
+                itemSet === "notifications"
+              ) {
+                return (
+                  <Tab
+                    key={"tabheader" + index}
+                    heading={
+                      <TabHeading
+                        style={{ backgroundColor: "transparent", flex: 1 }}>
+                        <View
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center"
+                          }}>
+                          <Text style={{ color: "white" }}>
+                            {this.state.unreadNotifs}
+                          </Text>
+                          <Text style={{ color: "grey", fontSize: 12 }}>
+                            UNREAD
+                          </Text>
+                          <Text style={{ color: "grey", fontSize: 12 }}>
+                            NOTIFICATIONS
+                          </Text>
+                        </View>
+                      </TabHeading>
+                    }>
+                    <NotificationsList
+                      notifications={this.state.notifications}
+                      basicCredentials={this.state.basicCredentials}
+                      accessToken={this.state.accessToken}
+                      getNotifications={this.getNotifications}
+                    />
+                  </Tab>
+                );
+              } else if (itemSet !== "notifications") {
+                return (
+                  <Tab
+                    key={"tabheader" + index}
+                    heading={
+                      <TabHeading
+                        style={{ backgroundColor: "transparent", flex: 1 }}>
+                        {createTabHeaders(
+                          this.state.githubUser[itemSet[0]],
+                          itemSet[1]
+                        )}
+                      </TabHeading>
+                    }>
+                    {itemSet[2]}
+                  </Tab>
+                );
+              }
+            })}
           </Tabs>
         </View>
       );
@@ -146,6 +229,8 @@ export default class ProfileScreen extends Component {
   }
 
   static navigationOptions = ({ navigation }) => {
+    const { params = {} } = navigation.state;
+
     return {
       headerTitle: (
         <Text style={{ color: "white", fontSize: 14 }}>Profile</Text>
@@ -158,9 +243,7 @@ export default class ProfileScreen extends Component {
               "Logout?",
               "",
               [
-                {
-                  text: "Cancel"
-                },
+                { text: "Cancel" },
                 {
                   text: "Confirm",
                   onPress: () => {
@@ -173,6 +256,18 @@ export default class ProfileScreen extends Component {
             );
           }}>
           <Icon type="Feather" name="log-out" style={{ color: "white" }} />
+        </Button>
+      ),
+      headerRight: (
+        <Button
+          transparent
+          onPress={() => {
+            navigation.navigate("SearchScreen", {
+              changeUserHandler: params.changeUserHandler,
+              navigateToRepoScreen: params.navigateToRepoScreen
+            });
+          }}>
+          <Icon type="FontAwesome" name="search" style={{ color: "white" }} />
         </Button>
       ),
       headerTransparent: true,
