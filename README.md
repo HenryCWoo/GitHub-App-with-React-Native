@@ -2,7 +2,6 @@
 
 This mobile app is a convenient way for users to interact with GitHub through their mobile devices.
 Users can look for GitHub users, find repositories, and view their notifications.
-Project was built using React Native.
 
 ## Demo
 
