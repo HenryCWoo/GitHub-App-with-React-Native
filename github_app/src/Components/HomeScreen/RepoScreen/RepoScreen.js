@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { Linking, Dimensions } from "react-native";
+import { Linking } from "react-native";
 import { View, Text, Icon, Button, Card, CardItem } from "native-base";
-import { AreaChart, LineChart, YAxis, Grid } from "react-native-svg-charts";
+import { LineChart, YAxis } from "react-native-svg-charts";
 import Moment from "moment";
 
 export default class RepoScreen extends Component {
@@ -156,7 +156,7 @@ export default class RepoScreen extends Component {
               <LineChart
                 style={{ flex: 1, marginLeft: 16 }}
                 data={data}
-                svg={{ stroke: "blue", strokeWidth: 3 }}
+                svg={{ stroke: "#5194ff", strokeWidth: 3 }}
                 contentInset={contentInset}
               />
             </View>
