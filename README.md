@@ -5,7 +5,7 @@ Users can look for GitHub users, find repositories, and view their notifications
 
 ## Demo
 
-Upon starting the app, users will be greeted with a friendly login screen. Then after logging in, they will see a rendering of their profile and description.
+Upon starting the app, users will be greeted with a friendly login screen. Users can choose to login using Basic Authentication or Auth2.0. Then after logging in, they will see a rendering of their profile and description.
 <p align="center">
 <img src="./readme_resources/login_and_profile.gif" width="320" height="650" />
 </p>
